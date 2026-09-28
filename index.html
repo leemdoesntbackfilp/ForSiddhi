@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Someone Special 😛💖</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rose: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                        },
+                        pinkish: {
+                            50: '#fdf2f8',
+                            100: '#fce7f3',
+                            200: '#fbcfe8',
+                            300: '#f9a8d4',
+                            400: '#f472b6',
+                            500: '#ec4899',
+                        }
+                    },
+                    fontFamily: {
+                        sansCustom: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serifCustom: ['"Playfair Display"', 'serif'],
+                        cursiveCustom: ['"Caveat"', 'cursive'],
+                    }
+                }
+            }
+        };
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #fff5f7 0%, #fce7f3 50%, #ffe4e6 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-cursive {
+            font-family: 'Caveat', cursive;
+        }
+
+        .font-elegant {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Floating White Hearts & Envelopes Background */
+        .heart-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatUp 8s linear infinite;
+            opacity: 0.85;
+            filter: drop-shadow(0px 2px 4px rgba(244, 114, 182, 0.3));
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(105vh) scale(0.3) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.9;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.1) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Card Flip Animation */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+
+        .flip-card-inner {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flip-card:hover .flip-card-inner,
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Soft Pink Glows */
+        .glow-pink {
+            box-shadow: 0 15px 45px -10px rgba(244, 114, 182, 0.35);
+        }
+
+        .glow-button {
+            box-shadow: 0 8px 30px rgba(236, 72, 153, 0.4);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glow-button:hover {
+            box-shadow: 0 12px 40px rgba(236, 72, 153, 0.6);
+            transform: translateY(-3px) scale(1.03);
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(253, 226, 236, 0.9);
+            box-shadow: 0 10px 30px rgba(244, 114, 182, 0.12);
+        }
+
+        /* Pulse Animation for Heart */
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.12); }
+        }
+
+        .animate-heartbeat {
+            animation: heartbeat 1.4s infinite ease-in-out;
+        }
+
+        /* Shake Animation for No Button */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-gray-800 relative select-none">
+
+    <!-- Floating Background Particles Container -->
+    <div id="heart-container" class="fixed inset-0 pointer-events-none z-0"></div>
+
+    <!-- Audio Control Button -->
+    <div class="fixed top-5 right-5 z-50">
+        <button id="musicToggle" onclick="toggleAudio(true)" class="glass-card px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 hover:scale-105 transition-all text-pink-600 font-semibold text-sm border border-pink-200 cursor-pointer">
+            <span id="musicIcon">🎵</span>
+            <span id="musicText">Play Music</span>
+        </button>
+    </div>
+
+    <!-- Soft Background Audio Element -->
+    <audio id="bgAudio" loop preload="auto">
+        <source src="song.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Main Web Application Container -->
+    <main class="relative z-10 max-w-4xl mx-auto px-4 py-10 flex flex-col items-center justify-center min-h-screen">
+
+        <!-- SECTION 1: HERO -->
+        <section id="heroSection" class="w-full text-center py-8 transition-all duration-700">
+            <div class="inline-block p-5 rounded-full bg-pink-100/90 mb-6 animate-heartbeat shadow-md border border-pink-200">
+                <span class="text-6xl drop-shadow-sm">💌</span>
+            </div>
+            
+            <h1 class="font-elegant text-5xl md:text-7xl font-bold text-pink-950 mb-6 leading-tight tracking-tight">
+                HIIEWWIIE SIDDHI!! 🤍
+            </h1>
+            
+            <p class="text-lg md:text-xl text-pink-900/90 max-w-2xl mx-auto font-medium leading-relaxed mb-8">
+                I made something cute for you because if I say bilkul honestlyy, you're standard perfection and you deserve your own corner on the internet.
+            </p>
+
+            <button onclick="scrollToContent()" class="glow-button bg-pink-500 hover:bg-pink-600 text-white font-semibold text-lg px-9 py-4 rounded-full flex items-center gap-3 mx-auto transition-all transform hover:scale-105 shadow-pink-200 cursor-pointer">
+                <span>Click to Open</span>
+                <span class="text-xl">✨</span>
+            </button>
+        </section>
+
+        <!-- SECTION 2: REASONS WHY YOU ARE AMAZING -->
+        <section id="reasonsSection" class="w-full my-12 opacity-95">
+            <div class="text-center mb-10">
+                <span class="text-xs font-bold uppercase tracking-widest text-pink-600 bg-pink-100 border border-pink-200 px-4 py-1.5 rounded-full shadow-sm">Tap each card to flip</span>
+                <h2 class="font-elegant text-3xl md:text-5xl text-pink-950 mt-4 font-bold">few reasons among maybe a billion 😛</h2>
+            </div>
+
+            <!-- Memory Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-2">
+                
+                <!-- Card 1 -->
+                <div class="flip-card h-64 w-full cursor-pointer" onclick="this.classList.toggle('flipped'); tryToPlayAudio();">
+                    <div class="flip-card-inner relative w-full h-full rounded-3xl shadow-sm transition-all">
+                        <div class="flip-card-front glass-card absolute inset-0 rounded-3xl p-6 flex flex-col items-center justify-center text-center border border-pink-200 hover:shadow-md transition-shadow">
+                            <span class="text-5xl mb-4 drop-shadow-sm">✨</span>
+                            <h3 class="font-bold text-xl text-pink-900">Your Vibe</h3>
+                            <p class="text-xs text-pink-400 mt-3 italic font-semibold">Tap to flip 🤍</p>
+                        </div>
+                        <div class="flip-card-back bg-gradient-to-br from-pink-400 to-rose-500 text-white absolute inset-0 rounded-3xl p-8 flex items-center justify-center text-center shadow-xl border border-pink-300">
+                            <p class="text-base font-medium leading-relaxed italic">
+                                "Literally bhiiiww every second spent with you, even if it was through a screen, I was smiling like idek how to explain T-T"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="flip-card h-64 w-full cursor-pointer" onclick="this.classList.toggle('flipped'); tryToPlayAudio();">
+                    <div class="flip-card-inner relative w-full h-full rounded-3xl shadow-sm transition-all">
+                        <div class="flip-card-front glass-card absolute inset-0 rounded-3xl p-6 flex flex-col items-center justify-center text-center border border-pink-200 hover:shadow-md transition-shadow">
+                            <span class="text-5xl mb-4 drop-shadow-sm">💌</span>
+                            <h3 class="font-bold text-xl text-pink-900">How You Treat Me</h3>
+                            <p class="text-xs text-pink-400 mt-3 italic font-semibold">Tap to flip 🤍</p>
+                        </div>
+                        <div class="flip-card-back bg-gradient-to-br from-pink-400 to-rose-500 text-white absolute inset-0 rounded-3xl p-8 flex items-center justify-center text-center shadow-xl border border-pink-300">
+                            <p class="text-base font-medium leading-relaxed italic">
+                                "You are genuinely so sweet, soo pyarii, and understanding. Being around you makes everything 100x better!"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="flip-card h-64 w-full cursor-pointer" onclick="openModal()">
+                    <div class="glass-card h-full rounded-3xl p-6 flex flex-col items-center justify-center text-center border border-pink-200 hover:shadow-md transition-all group">
+                        <span class="text-5xl mb-4 group-hover:scale-110 transition-transform drop-shadow-sm">📜</span>
+                        <h3 class="font-bold text-xl text-pink-900">A Secret Note</h3>
+                        <p class="text-xs text-pink-500 mt-3 font-semibold bg-pink-100 px-3 py-1 rounded-full">Tap to open note 🤍</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: THE 5-MARKS COMPATIBILITY QUIZ -->
+        <section id="quizSection" class="w-full my-12 glass-card rounded-[2.5rem] p-6 md:p-10 glow-pink border border-pink-200 relative shadow-xl">
+            <div class="text-center mb-6">
+                <span class="text-xs font-bold uppercase tracking-widest text-pink-700 bg-pink-100 border border-pink-300 px-4 py-1.5 rounded-full shadow-sm">
+                    5-Marks Official Compatibility Test 📝
+                </span>
+                <h2 class="font-elegant text-3xl md:text-4xl text-pink-950 font-bold mt-4">
+                    Quick Compatibility Test
+                </h2>
+                <p class="text-sm text-pink-800 mt-2 font-medium">Answer all 5 questions to unlock the final conclusion! 😇✌</p>
+            </div>
+
+            <!-- Quiz Progress Bar & Score Counter -->
+            <div class="max-w-xl mx-auto mb-8 bg-pink-100/80 rounded-2xl p-4 border border-pink-200 flex items-center justify-between gap-4">
+                <div class="flex-1">
+                    <div class="flex justify-between text-xs font-bold text-pink-900 mb-1.5">
+                        <span id="quizProgressLabel">Question 1 of 5</span>
+                        <span id="quizMarksLabel">Score: 0 / 5 Marks</span>
+                    </div>
+                    <div class="w-full bg-pink-200 h-2.5 rounded-full overflow-hidden">
+                        <div id="quizProgressBar" class="bg-gradient-to-r from-pink-400 to-rose-500 h-full w-1/5 transition-all duration-500 rounded-full"></div>
+                    </div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-pink-500 text-white font-extrabold flex items-center justify-center text-sm shadow-md" id="scoreBadge">
+                    0/5
+                </div>
+            </div>
+
+            <!-- Active Quiz Question Container -->
+            <div id="quizContainer" class="max-w-xl mx-auto">
+                <div id="questionCard" class="bg-white/95 rounded-2xl p-6 border border-pink-200 shadow-sm text-left">
+                    <h3 id="questionText" class="font-bold text-lg md:text-xl text-pink-950 mb-4">
+                        Loading Question...
+                    </h3>
+
+                    <div id="quizOptions" class="grid grid-cols-1 gap-3">
+                        <!-- Dynamic Options generated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Completion Banner (Initially Hidden) -->
+            <div id="quizPassedBanner" class="hidden max-w-xl mx-auto bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-3xl p-6 text-center shadow-lg border border-pink-300 animate-fadeIn">
+                <span class="text-5xl block mb-2">🏆</span>
+                <h3 class="font-elegant text-2xl md:text-3xl font-bold mb-2">100% PERFECT MATCH CONFIRMED!</h3>
+                <p class="text-sm md:text-base font-medium text-pink-100 mb-4">
+                    Score: 5/5 Marks! The results are officially in: We are scientifically proven to be a standard match! 😝😭🤍
+                </p>
+                <button onclick="scrollToProposal()" class="bg-white text-pink-600 font-bold px-6 py-3 rounded-full text-sm hover:bg-pink-50 transition-all shadow-md cursor-pointer">
+                    Proceed to Proposal 👇
+                </button>
+            </div>
+        </section>
+
+        <!-- SECTION 4: THE PROPOSAL (MCQ STYLE) -->
+        <section id="proposalSection" class="w-full my-12 glass-card rounded-[2.5rem] p-8 md:p-12 text-center glow-pink border border-pink-200 relative shadow-2xl">
+            <div class="absolute -top-20 -left-20 w-64 h-64 bg-pink-200/50 rounded-full blur-3xl opacity-70 pointer-events-none"></div>
+            <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-rose-200/50 rounded-full blur-3xl opacity-70 pointer-events-none"></div>
+
+            <div class="relative z-10 max-w-2xl mx-auto">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100/90 border border-pink-300 text-pink-800 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
+                    <span>💍</span> Final Question
+                </div>
+
+                <span class="text-5xl mb-4 block animate-bounce drop-shadow-md">💖</span>
+                <h2 class="font-elegant italic text-3xl md:text-5xl text-pink-950 font-bold mb-4 tracking-tight">
+                    Quick Question For You...
+                </h2>
+                <p class="text-pink-900 text-base md:text-xl font-medium mb-8 leading-relaxed">
+                    October 1st feels like a pretty perfect day to ask... <br/>
+                    <strong class="text-pink-950 font-bold">Would you like me to BD14U? 🤍</strong>
+                </p>
+
+                <!-- MCQ Interactive Option Buttons -->
+                <div id="mcqOptions" class="grid grid-cols-1 gap-3.5 text-left my-6 relative z-20">
+                    
+                    <!-- Option A -->
+                    <button onclick="selectOption('A')" class="mcq-btn group relative w-full p-4 rounded-2xl bg-white/95 hover:bg-pink-50 border-2 border-pink-200 hover:border-pink-400 transition-all duration-300 flex items-center justify-between shadow-sm hover:shadow-md cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <span class="w-9 h-9 rounded-xl bg-pink-100 group-hover:bg-pink-500 group-hover:text-white text-pink-700 font-extrabold flex items-center justify-center text-sm transition-colors shadow-inner">A</span>
+                            <span class="font-semibold text-pink-900 text-base md:text-lg">Yes, without a doubt! 💖</span>
+                        </div>
+                        <span class="text-pink-400 opacity-0 group-hover:opacity-100 transition-opacity text-xl">✨</span>
+                    </button>
+
+                    <!-- Option B -->
+                    <button onclick="selectOption('B')" class="mcq-btn group relative w-full p-4 rounded-2xl bg-white/95 hover:bg-pink-50 border-2 border-pink-200 hover:border-pink-400 transition-all duration-300 flex items-center justify-between shadow-sm hover:shadow-md cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <span class="w-9 h-9 rounded-xl bg-pink-100 group-hover:bg-pink-500 group-hover:text-white text-pink-700 font-extrabold flex items-center justify-center text-sm transition-colors shadow-inner">B</span>
+                            <span class="font-semibold text-pink-900 text-base md:text-lg">Of course, 1000% YES! 🌸</span>
+                        </div>
+                        <span class="text-pink-400 opacity-0 group-hover:opacity-100 transition-opacity text-xl">✨</span>
+                    </button>
+
+                    <!-- Option C -->
+                    <button onclick="selectOption('C')" class="mcq-btn group relative w-full p-4 rounded-2xl bg-white/95 hover:bg-pink-50 border-2 border-pink-200 hover:border-pink-400 transition-all duration-300 flex items-center justify-between shadow-sm hover:shadow-md cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <span class="w-9 h-9 rounded-xl bg-pink-100 group-hover:bg-pink-500 group-hover:text-white text-pink-700 font-extrabold flex items-center justify-center text-sm transition-colors shadow-inner">C</span>
+                            <span class="font-semibold text-pink-900 text-base md:text-lg">All of the above! 🤭😝</span>
+                        </div>
+                        <span class="text-pink-400 opacity-0 group-hover:opacity-100 transition-opacity text-xl">✨</span>
+                    </button>
+
+                    <!-- Option D (Shake & Red Reaction Button) -->
+                    <div id="noBtnContainer" class="relative w-full">
+                        <button id="noBtn" onclick="handleNoClick()" class="mcq-btn group relative w-full p-4 rounded-2xl bg-pink-100/90 hover:bg-pink-200 border-2 border-pink-300 transition-all duration-300 flex items-center justify-between shadow-sm cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <span id="noBadge" class="w-9 h-9 rounded-xl bg-pink-200 text-pink-800 font-extrabold flex items-center justify-center text-sm transition-colors duration-300">D</span>
+                                <span id="noBtnText" class="font-semibold text-pink-800 text-base md:text-lg transition-colors duration-300">No 🙈</span>
+                            </div>
+                            <span class="text-pink-400 text-xl">😜</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SECRET LETTER MODAL -->
+    <div id="letterModal" class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-pink-950/40 backdrop-blur-md hidden transition-opacity duration-300">
+        <div class="bg-gradient-to-b from-white to-pink-50 max-w-lg w-full rounded-3xl p-8 md:p-10 shadow-2xl relative transform transition-all scale-95 opacity-0 border border-pink-200" id="modalCard">
+            <button onclick="closeModal()" class="absolute top-5 right-5 text-pink-400 hover:text-pink-700 text-2xl font-bold w-10 h-10 flex items-center justify-center rounded-full hover:bg-pink-100 transition-colors cursor-pointer">
+                &times;
+            </button>
+            <div class="text-center mb-6">
+                <span class="text-5xl drop-shadow-sm">💌</span>
+                <h3 class="font-elegant italic text-3xl text-pink-900 font-bold mt-4">A Secret Note For You</h3>
+            </div>
+            <div class="text-pink-900/90 text-base md:text-lg leading-relaxed space-y-4 font-medium max-h-96 overflow-y-auto px-2">
+                <p>Hey standard perfection,</p>
+                <p>I know October 1st might sound like just another random date on the calendar, but for me, it's the day I decided to just ask it out T-T.</p>
+                <p>Every conversation we share, every time you make me laugh, and every thoughtful thing you do made me realize how genuinely amazing you are. You treat me so well, and I truly adore everything about you.</p>
+                <p>I built this small site(only took me 17hrs of coding 💔) just to put a smile on your face and ask you properly!</p>
+            </div>
+            <div class="mt-8 text-center">
+                <button onclick="closeModal()" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-8 py-3 rounded-full text-base transition-all shadow-md cursor-pointer">
+                    Close Note 🤍
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CELEBRATION OVERLAY SCREEN -->
+    <div id="victoryOverlay" class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-pink-950/60 backdrop-blur-xl hidden text-gray-900 text-center overflow-y-auto py-10 transition-all duration-500">
+        <div class="max-w-md w-full p-8 md:p-10 rounded-[2.5rem] bg-gradient-to-b from-white via-pink-50 to-rose-100 shadow-2xl transform transition-all scale-100 border-2 border-pink-200 relative overflow-hidden my-auto">
+            
+            <div class="absolute -top-20 -right-20 w-48 h-48 bg-pink-300 rounded-full blur-3xl opacity-40"></div>
+            <div class="absolute -bottom-20 -left-20 w-48 h-48 bg-rose-300 rounded-full blur-3xl opacity-40"></div>
+
+            <div class="relative z-10">
+                <div class="inline-block p-4 rounded-full bg-pink-100/90 mb-4 animate-heartbeat border border-pink-200 shadow-sm">
+                    <span class="text-5xl drop-shadow-sm">💖</span>
+                </div>
+                
+                <h2 class="font-elegant text-3xl md:text-4xl font-extrabold text-pink-950 mb-3 tracking-tight">
+                    IS THAT OFFICIALLY A YES??! 🎉
+                </h2>
+                
+                <p class="font-cursive text-3xl text-pink-600 font-bold mb-6">
+                    ITTA ACHHA DECISION OMGIUEIGEW! 😛😝
+                </p>
+
+                <!-- SECRET CODE SECTION FOR CHAT -->
+                <div class="bg-white/95 border border-pink-200 rounded-2xl p-5 mb-6 text-center shadow-sm">
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-pink-500 block mb-1">Your Pass Code 🔑</span>
+                    <p class="text-xs text-pink-800/80 mb-3 font-medium">Copy & paste this into our chat so I know you completed the website! 😥</p>
+                    
+                    <div class="bg-pink-50 border border-pink-200 rounded-xl p-3 flex items-center justify-between gap-2 mb-3">
+                        <span id="secretCodeText" class="font-mono font-bold text-pink-700 text-sm tracking-wide select-all">iluvvsidhiiirawat04</span>
+                        <span class="text-xs bg-pink-200 text-pink-800 font-bold px-2 py-1 rounded">MATCH</span>
+                    </div>
+
+                    <button id="copyBtn" onclick="copySecretCode()" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                        <span id="copyIcon">📋</span>
+                        <span id="copyBtnLabel">Copy Code for My Chat</span>
+                    </button>
+                </div>
+
+                <!-- Status Card -->
+                <div class="flex items-center justify-center gap-2 text-xs font-semibold text-pink-800 mb-6">
+                    <span>🤍</span> <span>Status: Taken by the most handsome guy 😝</span>
+                </div>
+
+                <button onclick="location.reload()" class="text-xs text-pink-500 font-bold hover:underline cursor-pointer">
+                    Replay website ↺
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden dummy input for clipboard copying -->
+    <textarea id="hiddenCopyInput" class="fixed top-0 left-0 opacity-0 pointer-events-none"></textarea>
+
+    <script>
+        let isPlaying = false;
+        let hasUserInteracted = false;
+        let noClickCount = 0;
+
+        // Quiz State
+        let currentQuestionIndex = 0;
+        let quizScore = 0;
+
+        const quizQuestions = [
+            {
+                question: "1. Who is statistically 100% guaranteed to make you smile even on a rough day?",
+                options: [
+                    "The guy who spent 17 hours making this website 🙋‍♂️",
+                    "Yatharth the great 😋",
+                    "Both of us together 💖",
+                    "All of the above! (+1 Mark)"
+                ],
+                correctIndex: 3
+            },
+            {
+                question: "2. What is the scientifically proven remedy when you feels stressed?",
+                options: [
+                    "Unlimited sweet texts & compliments",
+                    "Late night random deep talks",
+                    "Me treating you like da real queen 👑",
+                    "All of the above! (+1 Mark)"
+                ],
+                correctIndex: 3
+            },
+            {
+                question: "3. Who remembers tiny details about you and adores your vibe?",
+                options: [
+                    "Me, without a doubt 😜",
+                    "The most handsome guy you know",
+                    "Yatharthh 😛",
+                    "All of the above! (+1 Mark)"
+                ],
+                correctIndex: 3
+            },
+            {
+                question: "4. What is the official rating of our vibe together?",
+                options: [
+                    "10 / 10",
+                    "100 / 10",
+                    "Infinity / 10 ✨",
+                    "Beyond standard Infinty! (+1 Mark)"
+                ],
+                correctIndex: 3
+            },
+            {
+                question: "5. Conclusion Question: Who is certified as your 100% perfect match?",
+                options: [
+                    "Me (No doubt!)",
+                    "Me (1000% YES)",
+                    "Me (Standard Match)",
+                    "Me (All options lead to me! 🤭)"
+                ],
+                correctIndex: 3
+            }
+        ];
+
+        function tryToPlayAudio() {
+            const audio = document.getElementById('bgAudio');
+            if (isPlaying) return;
+
+            if (audio) {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    updateMusicButtonUI(true);
+                }).catch(err => {
+                    console.log("Waiting for gesture to play song.mp3:", err);
+                });
+            }
+        }
+
+        function handleFirstInteraction() {
+            if (!hasUserInteracted) {
+                hasUserInteracted = true;
+                tryToPlayAudio();
+            }
+        }
+
+        document.addEventListener('click', handleFirstInteraction);
+        document.addEventListener('touchstart', handleFirstInteraction);
+
+        function toggleAudio(forceToggle = false) {
+            const audio = document.getElementById('bgAudio');
+            
+            if (isPlaying && forceToggle) {
+                if (audio) audio.pause();
+                isPlaying = false;
+                updateMusicButtonUI(false);
+            } else {
+                tryToPlayAudio();
+            }
+        }
+
+        function updateMusicButtonUI(playing) {
+            const musicIcon = document.getElementById('musicIcon');
+            const musicText = document.getElementById('musicText');
+            if (musicIcon && musicText) {
+                if (playing) {
+                    musicIcon.innerText = '🔊';
+                    musicText.innerText = 'Playing Song';
+                } else {
+                    musicIcon.innerText = '🎵';
+                    musicText.innerText = 'Play Music';
+                }
+            }
+        }
+
+        // Floating particle generator
+        function createHeart() {
+            const container = document.getElementById('heart-container');
+            if (!container) return;
+            
+            const heart = document.createElement('div');
+            heart.classList.add('heart-particle');
+            
+            const particles = ['🤍', '💌', '✉️', '🤍', '💌'];
+            heart.innerHTML = particles[Math.floor(Math.random() * particles.length)];
+            
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 3 + 5) + 's';
+            heart.style.fontSize = (Math.random() * 16 + 16) + 'px';
+            
+            container.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 8000);
+        }
+
+        setInterval(createHeart, 350);
+
+        function scrollToContent() {
+            tryToPlayAudio();
+            const section = document.getElementById('reasonsSection');
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function scrollToProposal() {
+            tryToPlayAudio();
+            const section = document.getElementById('proposalSection');
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function loadQuizQuestion(index) {
+            const q = quizQuestions[index];
+            if (!q) return;
+
+            const qText = document.getElementById('questionText');
+            const qOptions = document.getElementById('quizOptions');
+            const qProgressLabel = document.getElementById('quizProgressLabel');
+            const qProgressBar = document.getElementById('quizProgressBar');
+
+            if (qText) qText.innerText = q.question;
+            if (qProgressLabel) qProgressLabel.innerText = `Question ${index + 1} of 5`;
+            if (qProgressBar) qProgressBar.style.width = `${((index + 1) / 5) * 100}%`;
+
+            if (qOptions) {
+                qOptions.innerHTML = '';
+                q.options.forEach((optText, optIdx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full text-left p-3.5 rounded-xl border-2 border-pink-200 bg-pink-50/50 hover:bg-pink-100 hover:border-pink-400 font-semibold text-pink-900 text-sm md:text-base transition-all flex items-center justify-between cursor-pointer";
+                    btn.innerHTML = `
+                        <span>${optText}</span>
+                        <span class="text-pink-400 text-xs bg-white px-2 py-1 rounded-md border border-pink-200">Select ✨</span>
+                    `;
+                    btn.onclick = () => handleQuizAnswer(optIdx);
+                    qOptions.appendChild(btn);
+                });
+            }
+        }
+
+        function handleQuizAnswer(selectedIdx) {
+            tryToPlayAudio();
+            quizScore += 1; // Every cute answer adds 1 mark!
+            
+            const scoreBadge = document.getElementById('scoreBadge');
+            const marksLabel = document.getElementById('quizMarksLabel');
+            if (scoreBadge) scoreBadge.innerText = `${quizScore}/5`;
+            if (marksLabel) marksLabel.innerText = `Score: ${quizScore} / 5 Marks`;
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < quizQuestions.length) {
+                loadQuizQuestion(currentQuestionIndex);
+            } else {
+                // Quiz completed!
+                const quizContainer = document.getElementById('quizContainer');
+                const quizPassedBanner = document.getElementById('quizPassedBanner');
+                if (quizContainer) quizContainer.classList.add('hidden');
+                if (quizPassedBanner) quizPassedBanner.classList.remove('hidden');
+            }
+        }
+
+        // Initialize quiz on load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadQuizQuestion(0);
+        });
+
+        function selectOption(optionKey) {
+            tryToPlayAudio();
+            handleYesClick();
+        }
+
+        function handleNoClick() {
+            tryToPlayAudio();
+            const noBtn = document.getElementById('noBtn');
+            const noBadge = document.getElementById('noBadge');
+            const noBtnText = document.getElementById('noBtnText');
+            if (!noBtn) return;
+            
+            noClickCount++;
+
+            const playfulTexts = [
+                "Are you sure? 🥺",
+                "Think again! 🌸",
+                "Aryy yawrrr! 😭",
+                "Wrong choice! 👉",
+                "Firse sochlo yawl! 🤍",
+                "Choose A, B or C instead! ✨",
+                "Nice try diddy 😜"
+            ];
+
+            if (noBtnText) {
+                noBtnText.innerText = playfulTexts[Math.min(noClickCount - 1, playfulTexts.length - 1)];
+            }
+
+            // Apply shake animation and turn red
+            noBtn.classList.add('animate-shake', 'bg-rose-500', 'border-rose-600');
+            noBtn.classList.remove('bg-pink-100/90', 'hover:bg-pink-200', 'border-pink-300');
+            
+            if (noBtnText) {
+                noBtnText.classList.remove('text-pink-800');
+                noBtnText.classList.add('text-white');
+            }
+            if (noBadge) {
+                noBadge.classList.remove('bg-pink-200', 'text-pink-800');
+                noBadge.classList.add('bg-white', 'text-rose-600');
+            }
+
+            // Smoothly restore normal state after animation
+            setTimeout(() => {
+                noBtn.classList.remove('animate-shake', 'bg-rose-500', 'border-rose-600');
+                noBtn.classList.add('bg-pink-100/90', 'hover:bg-pink-200', 'border-pink-300');
+                
+                if (noBtnText) {
+                    noBtnText.classList.remove('text-white');
+                    noBtnText.classList.add('text-pink-800');
+                }
+                if (noBadge) {
+                    noBadge.classList.remove('bg-white', 'text-rose-600');
+                    noBadge.classList.add('bg-pink-200', 'text-pink-800');
+                }
+            }, 500);
+        }
+
+        function handleYesClick() {
+            tryToPlayAudio();
+
+            if (typeof confetti === 'function') {
+                const duration = 5 * 1000;
+                const animationEnd = Date.now() + duration;
+                const defaults = { startVelocity: 35, spread: 360, ticks: 70, zIndex: 9999 };
+
+                function randomInRange(min, max) {
+                    return Math.random() * (max - min) + min;
+                }
+
+                const interval = setInterval(function() {
+                    const timeLeft = animationEnd - Date.now();
+
+                    if (timeLeft <= 0) {
+                        return clearInterval(interval);
+                    }
+
+                    const particleCount = 50 * (timeLeft / duration);
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+                }, 250);
+            }
+
+            const victoryOverlay = document.getElementById('victoryOverlay');
+            if (victoryOverlay) {
+                victoryOverlay.classList.remove('hidden');
+            }
+        }
+
+        function copySecretCode() {
+            const codeText = "iluvvsidhiiirawat04";
+            const hiddenInput = document.getElementById('hiddenCopyInput');
+            if (hiddenInput) {
+                hiddenInput.value = codeText;
+                hiddenInput.select();
+                
+                try {
+                    document.execCommand('copy');
+                } catch(e) {
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(codeText);
+                    }
+                }
+            }
+
+            const copyBtnLabel = document.getElementById('copyBtnLabel');
+            const copyIcon = document.getElementById('copyIcon');
+            const copyBtn = document.getElementById('copyBtn');
+
+            if (copyBtnLabel && copyIcon && copyBtn) {
+                copyBtnLabel.innerText = "Copied! Paste in our chat! 💬";
+                copyIcon.innerText = "✅";
+                copyBtn.classList.remove('bg-pink-500', 'hover:bg-pink-600');
+                copyBtn.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
+
+                setTimeout(() => {
+                    copyBtnLabel.innerText = "Copy Code for My Chat";
+                    copyIcon.innerText = "📋";
+                    copyBtn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
+                    copyBtn.classList.add('bg-pink-500', 'hover:bg-pink-600');
+                }, 3500);
+            }
+        }
+
+        function openModal() {
+            tryToPlayAudio();
+            const modal = document.getElementById('letterModal');
+            const card = document.getElementById('modalCard');
+            if (modal && card) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.add('opacity-100');
+                    card.classList.remove('scale-95', 'opacity-0');
+                    card.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('letterModal');
+            const card = document.getElementById('modalCard');
+            if (modal && card) {
+                card.classList.remove('scale-100', 'opacity-100');
+                card.classList.add('scale-95', 'opacity-0');
+                modal.classList.remove('opacity-100');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+        }
+    </script>
+</body>
+</html>
